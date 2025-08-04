@@ -1,20 +1,20 @@
 const express = require("express");
 const router = express.Router();
-
+const verifyToken = require("../middleware/verifyToken");
 const Expense = require("../model/Expense");
 const Budget = require("../model/budget");
 
-const dummyUserId = "000000000000000000000000";
 
-router.post("/", async (req, res) => {
-    const { month, title, amount, category } = req.body;
 
-    if (!month || !title || !amount) {
+router.post("/",verifyToken,async (req, res) => {
+    const { user,month, title, amount, category } = req.body;
+
+    if (!user || !month || !title || !amount) {
         return res.status(400).json({ error: "Month, title, and amount are required" });
     }
 
     try {
-        const budget = await Budget.findOne({ user: dummyUserId, month });
+        const budget = await Budget.findOne({ user, month });
 
         if (!budget) {
             return res.status(404).json({ error: "No budget found for this month" });
@@ -25,7 +25,7 @@ router.post("/", async (req, res) => {
         }
 
         const newExpense = await Expense.create({
-            user: dummyUserId,
+            user,
             month,
             title,
             amount,
@@ -44,12 +44,11 @@ router.post("/", async (req, res) => {
 });
 
 
-router.get("/", async (req, res) => {
-    const { month } = req.query;
-    const dummyUserId = "000000000000000000000000";
+router.get("/",verifyToken,async (req, res) => {
+    const {user, month } = req.query;;
 
     try {
-        const filter = { user: dummyUserId };
+        const filter = { user };
         if (month) {
             filter.month = month;
         }

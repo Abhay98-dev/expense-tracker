@@ -5,6 +5,7 @@ require("dotenv").config()
 
 const BudgetRoute = require("./Routes/budget")
 const ExpenseRoute= require("./Routes/expense")
+const AuthRoute = require("./Routes/auth")
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -22,6 +23,7 @@ connectedDb()
 
 app.use("/budget",BudgetRoute)
 app.use("/expense",ExpenseRoute)
+app.use("/auth",AuthRoute)
 
 app.listen(process.env.PORT,()=>{
     console.log(`Server is running on port ${process.env.PORT}`)

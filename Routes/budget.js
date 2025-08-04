@@ -1,23 +1,24 @@
 const express=require("express")
 const router=express.Router()
 const Budget = require("../model/budget")
+const verifyToken = require("../middleware/verifyToken")
 
-const dummyUserId = "000000000000000000000000";
 
-router.post("/",async(req,res)=>{
-    const {month, total}= req.body
-    if(!month || !total){
-        return res.status(400).json({error:"Month and total are reqquired"})
+
+router.post("/",verifyToken,async(req,res)=>{
+    const {user,month, total}= req.body
+    if(!user||!month || !total){
+        return res.status(400).json({error:"All fields are reqquired"})
     }
     try{
-        const existingBudget = await Budget.findOne({user: dummyUserId, month})
+        const existingBudget = await Budget.findOne({user , month})
         if(existingBudget){
             const updatedBudget = await Budget.findByIdAndUpdate(existingBudget._id, {total,month,remaining :total}, {new:true})
             return res.status(200).json({message:"Budget updated successfully", budget: updatedBudget})
         }
         else{
             const newBudget = await Budget.create({
-                user:dummyUserId,
+                user,
                 month,
                 total,
                 remaining:total
